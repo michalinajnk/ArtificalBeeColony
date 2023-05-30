@@ -56,7 +56,7 @@ class PotentialSolution:
         self.fitness_value = self.calculate_fitness()
 
     def get_better_solution(self, solution, without_change_limit, solutionGenerator):
-        if self.fitness_value > solution.fitness_value:
+        if self.fitness_value < solution.fitness_value:
             return self
         else:
             self.incrementCounter(without_change_limit, solutionGenerator)
@@ -145,7 +145,7 @@ class ABC:
         return scout_bees
 
     def get_best_solution(self, solutions):
-        return max(solutions, key=lambda x: x.fitness_value)
+        return min(solutions, key=lambda x: x.fitness_value)
 
 
 def generate_instance(n, seed):
