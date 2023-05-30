@@ -10,7 +10,7 @@ class Task:
         self.finishedTime = duration
 
     def update_finished_time(self, previousTaskFinishedAt):
-        self.finishedTime += previousTaskFinishedAt
+        self.finishedTime = previousTaskFinishedAt + self.duration
 
     def calculate_tardiness(self, previousTask):
         if previousTask is None:
@@ -41,7 +41,7 @@ class PotentialSolution:
         return np.array([(1 / solution.fitness_value) / total_inverse_fitness for solution in otherSolutions])
 
     def calculate_fitness(self):
-        fitness_value = 0
+        fitness_value = 1
         previous_task = None  # Initialize the previous task
         for task in self.tasks_in_order:
             fitness_value = np.add(fitness_value, task.calculate_weighted_tardiness(previous_task))
@@ -56,7 +56,7 @@ class PotentialSolution:
         self.fitness_value = self.calculate_fitness()
 
     def get_better_solution(self, solution, without_change_limit, solutionGenerator):
-        if self.fitness_value > solution.fitness_value:
+        if self.fitness_value < solution.fitness_value:
             return self
         else:
             self.incrementCounter(without_change_limit, solutionGenerator)
@@ -118,7 +118,7 @@ class ABC:
     def generate_employed_bees(self, solutions):
         employed_bees = []
         for solution in solutions:
-            num_changes = math.floor(random.uniform(0, 1) * len(solution.tasks_in_order)) + 1
+            num_changes = 1 #math.floor(random.uniform(0, 1) * len(solution.tasks_in_order)) + 1
             neighbor_solution = self.generator.generate_neighbor(solution, num_changes)
             better_solution = solution.get_better_solution(neighbor_solution, self.without_change_limit, self.generator)
             employed_bees.append(better_solution)
@@ -129,7 +129,7 @@ class ABC:
         for solution in employed_bees:
             roulette_probability = solution.calculate_roulette_probability(employed_bees)
             selected_solution = np.random.choice(employed_bees, p=roulette_probability)
-            num_changes = math.floor(random.uniform(0, 1) * len(selected_solution.tasks_in_order)) + 1
+            num_changes = 1 #math.floor(random.uniform(0, 1) * len(selected_solution.tasks_in_order)) + 1
             neighbor_solution = self.generator.generate_neighbor(selected_solution, num_changes)
             better_solution = solution.get_better_solution(neighbor_solution, self.without_change_limit, self.generator)
             onlooker_bees.append(better_solution)
@@ -145,7 +145,7 @@ class ABC:
         return scout_bees
 
     def get_best_solution(self, solutions):
-        return max(solutions, key=lambda x: x.fitness_value)
+        return min(solutions, key=lambda x: x.fitness_value)
 
 
 def generate_instance(n, seed):
